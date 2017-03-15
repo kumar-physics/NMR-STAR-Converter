@@ -15,7 +15,11 @@ dist/
 downloads/
 eggs/
 .eggs/
+<<<<<<< HEAD
 #lib/
+=======
+lib/
+>>>>>>> 86beada3d78197861aad96295106da58ccea01dd
 lib64/
 parts/
 sdist/
