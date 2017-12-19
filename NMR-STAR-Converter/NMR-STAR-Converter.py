@@ -3,9 +3,11 @@ Created on Mar 15, 2017
 
 @author: kumaran
 '''
-import pynmrstar,csv,copy,datetime
+import pynmrstar,csv,copy,datetime,urllib2,json
 from datetime import date
 from string import atoi
+from pynmrstar import Saveframe
+
 
 class NMRSTAR(object):
     '''
@@ -22,6 +24,21 @@ class NMRSTAR(object):
         self.newSchema = pynmrstar.Schema('/home/kumaran/git/nmr-star-dictionary/bmrb_only_files/adit_input/xlschem_ann.csv')
         self.oldSchema = pynmrstar.Schema('/home/kumaran/git/nmr-star-dictionary/bmrb_star_v3_files/adit_input/xlschem_ann.csv')
         self.today = datetime.date.today()
+    def Convert2(self):
+        #print "x",self.inFile,"x"
+        self.inputStar = pynmrstar.Entry.from_database(self.inFile)
+        #pynmrstar.validate(self.oldStar,self.newSchema)
+        #self.newStar = pynmrstar.Entry.from_file('/home/kumaran/nmrstar/adit_input/nmrstar32.str')
+        #self.ReadMapFile()
+        self.outputStar = pynmrstar.Entry.from_scratch(self.inputStar.entry_id)
+        saveframes = [saveframe.category for saveframe in self.inputStar]
+        #if "entry_informatio" in saveframes: print saveframes
+        if "spectral_peak_list" in saveframes:
+            for saveframe in self.inputStar:
+                if saveframe.category == "spectral_peak_list":
+                    loops = [loop.category for loop in saveframe]
+                    if len(loops)==0:
+                        print self.inputStar.entry_id,saveframe.name, loops,saveframe.get_tag("Text_data_format")
     
     def Convert(self):
         print "x",self.inFile,"x"
@@ -301,14 +318,25 @@ class NMRSTAR(object):
 if __name__=="__main__":
     #p = NMRSTAR('/home/kumaran/git/nmr-star-dictionary/bmrb_star_v3_files/adit_input/nmrstar3_fake.txt')
     #p = NMRSTAR('/home/kumaran/git/nmr-star-dictionary/bmrb_only_files/adit_input/nmrstar3_fake.txt')
-    f=open('/home/kumaran/git/NMR-STAR-Converter/uniq_peak.dat','r')
+    #f=open('/home/kumaran/git/NMR-STAR-Converter/uniq_peak.dat','r')
     #p=NMRSTAR("26860")
     #p=NMRSTAR("15090")
     #p.Convert()
-    for l in f:
-        bmrbid = l.split("\n")[0]
-        p=NMRSTAR(bmrbid)
-        p.Convert()
+    #for l in f:
+    #    bmrbid = l.split("\n")[0]
+    #    p=NMRSTAR(bmrbid)
+    #    p.Convert()
+    
+    #res = urllib2.urlopen('http://webapi.bmrb.wisc.edu/v2/list_entries?database=macromolecules')
+    #idlist = json.loads(res.read())
+    #idlist = ['15090']
+    idlist=open('uni.list','r').read().split("\n")[:-1]
+    for j in range(len(idlist)):
+        #print bmrbid
+        bmrbid = idlist[j]
+        p = NMRSTAR(bmrbid)
+        p.Convert2()
+    
         
     
       
